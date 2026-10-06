@@ -97,8 +97,8 @@ async function addCar(env, body) {
   if (existing) return json({ duplicate: true, car: rowToCar(existing) }, 409);
 
   const { data, error } = await fetchListing(norm);
-  const top = await DB.prepare("SELECT MIN(position) AS p FROM cars").first();
-  const position = (top?.p ?? 1) - 1; // new cars land on top of the board
+  const last = await DB.prepare("SELECT MAX(position) AS p FROM cars").first();
+  const position = (last?.p ?? -1) + 1; // new cars go to the bottom of the board
   const cols = ["url_key", "url", "position", "parse_error", ...PARSED_FIELDS];
   const vals = [norm.key, norm.url, position, error, ...PARSED_FIELDS.map((f) => data[f] ?? null)];
   try {
