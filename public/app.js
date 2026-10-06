@@ -39,15 +39,13 @@ function specs(c) {
   return out;
 }
 
-// sauto (sdn.cz) photos only load through our proxy; try with and without the resize hint.
+// sauto (sdn.cz) photos only load through our proxy, which adds sauto's resize filter.
 function photoSources(url) {
   if (!url) return [];
   let host;
   try { host = new URL(url).hostname; } catch { return [url]; }
   if (!/(^|\.)sdn\.cz$/.test(host)) return [url];
-  const proxied = (u) => `/api/img?u=${encodeURIComponent(u)}`;
-  const bare = url.split("?")[0];
-  return [...new Set([proxied(url), proxied(`${bare}?fl=res,1024,768,1|jpg,80`), proxied(bare), url])];
+  return [`/api/img?u=${encodeURIComponent(url.split("?")[0])}`];
 }
 
 function visible(c) {

@@ -32,6 +32,8 @@ const BROWSER_HEADERS = {
   "Accept-Language": "cs-CZ,cs;q=0.9,en;q=0.8",
 };
 
+const SAUTO_IMG_FILTER = "?fl=exf|res,1024,768,1|wrm,/watermark/sauto.png,10,10|jpg,80,,1";
+
 let schemaReady = false;
 async function db(env) {
   if (!schemaReady) {
@@ -166,6 +168,9 @@ async function proxyImage(request) {
   if (target.protocol !== "https:" || !/(^|\.)sdn\.cz$/.test(target.hostname)) {
     return new Response("Host not allowed", { status: 403 });
   }
+  // sdn.cz only serves sauto photos resized and watermarked, with the same
+  // filter string sauto's own pages use.
+  target.search = SAUTO_IMG_FILTER;
   const res = await fetch(target, {
     headers: { ...BROWSER_HEADERS, Accept: "image/avif,image/webp,image/*,*/*;q=0.8", Referer: "https://www.sauto.cz/" },
     cf: { cacheEverything: true, cacheTtl: 86400 },

@@ -50,7 +50,7 @@ test("maps a sauto item to board fields", () => {
     body: "Kombi",
     location: "Brno, Brno-město",
     seller: "AAA Auto Brno",
-    image: "https://d48-a.sdn.cz/d_48/c_img_abc/xyz.jpeg?fl=res,1024,768,1|jpg,80",
+    image: "https://d48-a.sdn.cz/d_48/c_img_abc/xyz.jpeg",
   });
 });
 
@@ -121,6 +121,7 @@ test("image proxy only fetches sdn.cz and sends a sauto referer", async (t) => {
   assert.equal(ok.status, 200);
   assert.equal(ok.headers.get("Content-Type"), "image/jpeg");
   assert.equal(sent.referer, "https://www.sauto.cz/");
+  assert.match(sent.url, /y\.jpeg\?fl=exf\|res,1024,768,1\|wrm,/);
   assert.equal((await call("https://evil.example.com/x.jpg")).status, 403);
   assert.equal((await call("https://sdn.cz.evil.com/x.jpg")).status, 403);
   assert.equal((await call("not a url")).status, 400);
