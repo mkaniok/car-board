@@ -42,7 +42,12 @@
 
   <template id="card-tpl">
     <article class="card">
-      <div class="rank"><span class="handle" title="Drag to reorder">☰</span><span class="num"></span></div>
+      <div class="rank">
+        <button class="move up" title="Move up" aria-label="Move up">▲</button>
+        <span class="handle" title="Drag to reorder">☰</span>
+        <span class="num"></span>
+        <button class="move down" title="Move down" aria-label="Move down">▼</button>
+      </div>
       <a class="photo" target="_blank" rel="noopener"><img alt="" loading="lazy" referrerpolicy="no-referrer"></a>
       <div class="body">
         <div class="head">

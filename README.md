@@ -6,7 +6,7 @@ A shared board for used-car listings. Paste a listing URL (mostly sauto.cz), and
 - reads the listing and shows the key facts: photo, title, price, year, mileage, fuel, transmission, power, body, location and seller;
 - lets you tick **Contacted** per car, keep a short note, and filter by contacted / not contacted;
 - lets you **Hide** cars you are done with (they move to the Hidden filter, where you can unhide them); pasting a hidden car's link asks whether to unhide it;
-- lets you drag cars (☰ handle, works on touch too) into your order of preference, which is saved for everyone;
+- lets you order cars by preference, by dragging the ☰ handle or with the ▲▼ buttons on each card; the order is saved for everyone;
 - lets you temporarily sort by price, km or year; "My order" is the default and sorting never changes it.
 
 There is no login: anyone with the link can view and edit.
