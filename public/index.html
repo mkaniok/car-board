@@ -20,6 +20,7 @@
         <button data-filter="all" class="on">All <span id="n-all"></span></button>
         <button data-filter="todo">Not contacted <span id="n-todo"></span></button>
         <button data-filter="done">Contacted <span id="n-done"></span></button>
+        <button data-filter="hidden">Hidden <span id="n-hidden"></span></button>
       </div>
       <label class="sort">Sort
         <select id="sort">
@@ -57,7 +58,7 @@
         <div class="actions">
           <button class="edit" title="Edit details">Edit</button>
           <button class="refresh" title="Re-read the listing">Refresh</button>
-          <button class="delete" title="Remove from board">Remove</button>
+          <button class="hide" title="Hide from the board (you can unhide it later)">Hide</button>
         </div>
       </div>
     </article>
@@ -82,6 +83,17 @@
       <div class="dlg-actions">
         <button value="cancel" formnovalidate>Cancel</button>
         <button value="save" class="primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="unhide-dlg">
+    <form method="dialog">
+      <h2>Car is hidden</h2>
+      <p id="unhide-text">This car is already on the board but hidden. Do you want to unhide it?</p>
+      <div class="dlg-actions">
+        <button value="cancel">Cancel</button>
+        <button value="unhide" class="primary">Unhide</button>
       </div>
     </form>
   </dialog>

@@ -51,20 +51,26 @@ function photoSources(url) {
 }
 
 function visible(c) {
+  if (filter === "hidden") return c.hidden;
+  if (c.hidden) return false;
   return filter === "all" || (filter === "done" ? c.contacted : !c.contacted);
 }
 
+const shown = () => cars.filter((c) => !c.hidden);
+
 // Returns the cars to show, in display order, each with its rank in your own order.
 function displayList() {
-  const list = cars.map((c, i) => ({ c, rank: i + 1 })).filter(({ c }) => visible(c));
+  // Ranks count only cars on the board; hidden cars have none.
+  let n = 0;
+  const list = cars.map((c) => ({ c, rank: c.hidden ? null : ++n })).filter(({ c }) => visible(c));
   if (sort === "custom") return list;
   const [field, dir] = sort.split("-");
   const sign = dir === "asc" ? 1 : -1;
   // Cars missing the value go last; ties keep your own order.
   return list.sort((a, b) => {
     const x = a.c[field], y = b.c[field];
-    if (x == null || y == null) return (x == null) - (y == null) || a.rank - b.rank;
-    return (x - y) * sign || a.rank - b.rank;
+    if (x == null || y == null) return (x == null) - (y == null) || 0;
+    return (x - y) * sign;
   });
 }
 
@@ -75,11 +81,10 @@ function render() {
   $("#hint").textContent = custom ? "Drag ☰ to reorder by preference" : "Switch to My order to drag";
   sortable?.option("disabled", !custom);
   displayList().forEach(({ c, rank }) => {
-    const i = rank - 1;
     const el = tpl.content.firstElementChild.cloneNode(true);
     el.dataset.id = c.id;
     el.classList.toggle("is-contacted", c.contacted);
-    $(".num", el).textContent = i + 1;
+    $(".num", el).textContent = rank ?? "";
     const host = (() => { try { return new URL(c.url).hostname.replace(/^www\./, ""); } catch { return c.url; } })();
     $(".title", el).textContent = c.title || host;
     $(".title", el).href = c.url;
@@ -104,17 +109,22 @@ function render() {
     notes.addEventListener("change", () => save(c, { notes: notes.value }));
     $(".edit", el).addEventListener("click", () => openEdit(c));
     $(".refresh", el).addEventListener("click", () => refresh(c, el));
-    $(".delete", el).addEventListener("click", () => remove(c));
+    const hideBtn = $(".hide", el);
+    hideBtn.textContent = c.hidden ? "Unhide" : "Hide";
+    hideBtn.addEventListener("click", () => setHidden(c, !c.hidden));
     board.append(el);
   });
-  $("#empty").hidden = cars.length > 0;
-  $("#n-all").textContent = cars.length;
-  $("#n-todo").textContent = cars.filter((c) => !c.contacted).length;
-  $("#n-done").textContent = cars.filter((c) => c.contacted).length;
+  const onBoard = shown();
+  $("#empty").hidden = board.children.length > 0;
+  $("#empty").textContent = filter === "hidden" ? "No hidden cars." : "No cars yet. Paste a sauto.cz link above to start.";
+  $("#n-all").textContent = onBoard.length;
+  $("#n-todo").textContent = onBoard.filter((c) => !c.contacted).length;
+  $("#n-done").textContent = onBoard.filter((c) => c.contacted).length;
+  $("#n-hidden").textContent = cars.length - onBoard.length;
 }
 
 async function load() {
-  if (busy || document.querySelector(".notes:focus") || $("#edit-dlg").open) return;
+  if (busy || document.querySelector(".notes:focus") || document.querySelector("dialog[open]")) return;
   try {
     cars = (await api("/api/cars")).cars;
     render();
@@ -139,14 +149,17 @@ async function add(url) {
   say("Checking and reading the listing…");
   try {
     const res = await api("/api/cars", { method: "POST", body: { url } });
-    if (res.duplicate) {
-      const idx = cars.findIndex((c) => c.id === res.car.id);
+    if (res.duplicate && res.car.hidden) {
+      say("");
+      askUnhide(res.car);
+    } else if (res.duplicate) {
+      const idx = shown().findIndex((c) => c.id === res.car.id);
       say(`Already on the board as #${idx + 1}: ${res.car.title || res.car.url}`, true);
       if (!visible(res.car)) { setFilter("all"); }
       flash(res.car.id);
     } else {
       cars.push(res.car);
-      if (filter === "done") setFilter("all"); else render();
+      if (filter === "done" || filter === "hidden") setFilter("all"); else render();
       say(res.car.parse_error ? "Added, but some details couldn't be read. Use Edit to fill them in." : `Added: ${res.car.title}`, !!res.car.parse_error);
       flash(res.car.id);
     }
@@ -185,15 +198,25 @@ async function refresh(car, el) {
   }
 }
 
-async function remove(car) {
-  if (!confirm(`Remove "${car.title || car.url}" from the board?`)) return;
-  try {
-    await api(`/api/cars/${car.id}`, { method: "DELETE" });
-    cars = cars.filter((c) => c !== car);
-    render();
-  } catch (e) {
-    say(e.message, true);
-  }
+async function setHidden(car, hidden) {
+  await save(car, { hidden });
+  const name = car.title || car.url;
+  say(hidden ? `Hidden: ${name}. Find it under Hidden.` : `Back on the board: ${name}`);
+}
+
+function askUnhide(dup) {
+  const dlg = $("#unhide-dlg");
+  $("#unhide-text").textContent =
+    `"${dup.title || dup.url}" is already on the board but hidden. Do you want to unhide it?`;
+  dlg.returnValue = "";
+  dlg.onclose = async () => {
+    if (dlg.returnValue !== "unhide") return;
+    const car = cars.find((c) => c.id === dup.id) || (cars.push(dup), dup);
+    await setHidden(car, false);
+    if (!visible(car)) setFilter("all");
+    flash(car.id);
+  };
+  dlg.showModal();
 }
 
 function openEdit(car) {

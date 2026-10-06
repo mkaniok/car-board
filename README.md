@@ -5,6 +5,7 @@ A shared board for used-car listings. Paste a listing URL (mostly sauto.cz), and
 - checks whether that car is already on the board (sauto links match on the listing id, so different slugs, `m.` hosts or tracking parameters still count as the same car) and highlights the existing card instead of adding a copy;
 - reads the listing and shows the key facts: photo, title, price, year, mileage, fuel, transmission, power, body, location and seller;
 - lets you tick **Contacted** per car, keep a short note, and filter by contacted / not contacted;
+- lets you **Hide** cars you are done with (they move to the Hidden filter, where you can unhide them); pasting a hidden car's link asks whether to unhide it;
 - lets you drag cars (☰ handle, works on touch too) into your order of preference, which is saved for everyone;
 - lets you temporarily sort by price, km or year; "My order" is the default and sorting never changes it.
 
@@ -51,5 +52,5 @@ npm test        # parser and URL-normalisation tests
 | GET | `/api/check?url=` | `{exists, car}` without adding |
 | PATCH | `/api/cars/:id` | update `contacted`, `notes` or any detail field |
 | POST | `/api/cars/:id/refresh` | re-read the listing |
-| DELETE | `/api/cars/:id` | remove |
+| DELETE | `/api/cars/:id` | delete permanently (not used by the page) |
 | PUT | `/api/order` `{ids}` | save the board order |
