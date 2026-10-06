@@ -1,0 +1,21 @@
+name = "car-board"
+main = "src/worker.js"
+compatibility_date = "2025-09-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+# Created with `npx wrangler d1 create car-board`.
+[[d1_databases]]
+binding = "DB"
+database_name = "car-board"
+database_id = "d8c4c15e-9cf2-40e5-ae09-a67d8ca9964a"
+
+# Preview builds of pull requests (Workers Builds runs `wrangler preview`).
+# They share the board's database so a preview shows the real cars.
+[[previews.d1_databases]]
+binding = "DB"
+database_name = "car-board"
+database_id = "d8c4c15e-9cf2-40e5-ae09-a67d8ca9964a"
