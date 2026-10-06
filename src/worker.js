@@ -209,6 +209,12 @@ async function handleApi(request, env, path) {
     // Diagnostics: the raw sauto API answer for a listing, to tune the parser.
     const norm = normalizeUrl(new URL(request.url).searchParams.get("url"));
     if (!norm.sautoId) return json({ error: "Not a sauto.cz listing URL" }, 400);
+    if (new URL(request.url).searchParams.has("page")) {
+      const page = await fetch(norm.url, { headers: { ...BROWSER_HEADERS, Accept: "text/html" } });
+      const html = await page.text();
+      const imgs = [...new Set(html.match(/(?:https?:)?\/\/[a-z0-9-]+\.sdn\.cz\/[^"'\s<>)]+/gi) || [])].slice(0, 15);
+      return json({ status: page.status, imgs });
+    }
     const res = await fetch(`https://www.sauto.cz/api/v1/items/${norm.sautoId}`, {
       headers: { ...BROWSER_HEADERS, Accept: "application/json" },
     });
