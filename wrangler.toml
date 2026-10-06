@@ -12,3 +12,10 @@ run_worker_first = ["/api/*"]
 binding = "DB"
 database_name = "car-board"
 database_id = "d8c4c15e-9cf2-40e5-ae09-a67d8ca9964a"
+
+# Preview builds of pull requests (Workers Builds runs `wrangler preview`).
+# They share the board's database so a preview shows the real cars.
+[[previews.d1_databases]]
+binding = "DB"
+database_name = "car-board"
+database_id = "d8c4c15e-9cf2-40e5-ae09-a67d8ca9964a"
