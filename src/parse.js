@@ -68,7 +68,7 @@ export function mapSautoItem(item, baseUrl = "https://www.sauto.cz/") {
     : pick(item, "image", "main_image.url");
   image = absUrl(image, baseUrl);
   // sdn.cz image URLs need a size hint, otherwise they return a tiny/blank image.
-  if (image && /sdn\.cz/.test(image) && !image.includes("?")) image += "?fl=res,800,600,3|jpg,80";
+  if (image && /sdn\.cz/.test(image) && !image.includes("?")) image += "?fl=res,1024,768,1|jpg,80";
 
   const loc = pick(item, "locality") || {};
   const location = typeof loc === "string" ? loc

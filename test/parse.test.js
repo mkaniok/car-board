@@ -50,7 +50,7 @@ test("maps a sauto item to board fields", () => {
     body: "Kombi",
     location: "Brno, Brno-město",
     seller: "AAA Auto Brno",
-    image: "https://d48-a.sdn.cz/d_48/c_img_abc/xyz.jpeg?fl=res,800,600,3|jpg,80",
+    image: "https://d48-a.sdn.cz/d_48/c_img_abc/xyz.jpeg?fl=res,1024,768,1|jpg,80",
   });
 });
 

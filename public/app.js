@@ -55,7 +55,13 @@ function render() {
     $(".title", el).textContent = c.title || host;
     $(".title", el).href = c.url;
     $(".photo", el).href = c.url;
-    $(".photo img", el).src = c.image || "";
+    const img = $(".photo img", el);
+    // sdn.cz (sauto) may reject a resize hint; fall back to the original image, then to no photo.
+    img.onerror = () => {
+      if (img.src.includes("?")) img.src = img.src.split("?")[0];
+      else img.removeAttribute("src");
+    };
+    img.src = c.image || "";
     $(".price", el).textContent = c.price ? `${fmtInt(c.price)} Kč` : "";
     const ul = $(".specs", el);
     for (const s of specs(c)) ul.append(Object.assign(document.createElement("li"), { textContent: s }));
