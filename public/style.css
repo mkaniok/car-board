@@ -111,7 +111,6 @@ h1 { margin: 0 0 8px; font-size: 20px; }
 .contacted input { width: 16px; height: 16px; margin: 0; }
 .actions { display: flex; flex-direction: column; gap: 4px; }
 .actions button { font-size: 13px; padding: 4px 8px; }
-.actions .delete:hover { color: var(--warn); border-color: var(--warn); }
 
 dialog { border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); max-width: 560px; width: calc(100% - 32px); }
 dialog::backdrop { background: rgba(0, 0, 0, .4); }

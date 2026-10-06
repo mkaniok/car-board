@@ -16,6 +16,7 @@ const SCHEMA = `CREATE TABLE IF NOT EXISTS cars (
   seller TEXT,
   image TEXT,
   contacted INTEGER NOT NULL DEFAULT 0,
+  hidden INTEGER NOT NULL DEFAULT 0,
   notes TEXT NOT NULL DEFAULT '',
   position REAL NOT NULL DEFAULT 0,
   parse_error TEXT,
@@ -24,7 +25,7 @@ const SCHEMA = `CREATE TABLE IF NOT EXISTS cars (
 )`;
 
 const PARSED_FIELDS = ["title", "price", "year", "mileage", "fuel", "transmission", "power_kw", "body", "location", "seller", "image"];
-const EDITABLE_FIELDS = [...PARSED_FIELDS, "contacted", "notes"];
+const EDITABLE_FIELDS = [...PARSED_FIELDS, "contacted", "hidden", "notes"];
 const INT_FIELDS = new Set(["price", "year", "mileage", "power_kw"]);
 
 const BROWSER_HEADERS = {
@@ -38,6 +39,11 @@ let schemaReady = false;
 async function db(env) {
   if (!schemaReady) {
     await env.DB.prepare(SCHEMA).run();
+    // Columns added after the first release.
+    const { results } = await env.DB.prepare("PRAGMA table_info(cars)").all();
+    if (!results.some((c) => c.name === "hidden")) {
+      await env.DB.prepare("ALTER TABLE cars ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0").run();
+    }
     schemaReady = true;
   }
   return env.DB;
@@ -46,7 +52,7 @@ async function db(env) {
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
 
-const rowToCar = (r) => r && { ...r, contacted: !!r.contacted };
+const rowToCar = (r) => r && { ...r, contacted: !!r.contacted, hidden: !!r.hidden };
 
 /** Fetches and parses a listing. Never throws: returns { data, error }. */
 export async function fetchListing(norm) {
@@ -120,7 +126,7 @@ async function updateCar(env, id, body) {
   for (const f of EDITABLE_FIELDS) {
     if (!(f in body)) continue;
     let v = body[f];
-    if (f === "contacted") v = v ? 1 : 0;
+    if (f === "contacted" || f === "hidden") v = v ? 1 : 0;
     else if (INT_FIELDS.has(f)) v = v === "" || v == null ? null : parseInt(String(v).replace(/[^\d]/g, ""), 10) || null;
     else v = v == null ? (f === "notes" ? "" : null) : String(v).slice(0, 5000);
     sets.push(`${f} = ?`);
