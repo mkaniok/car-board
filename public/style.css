@@ -137,4 +137,6 @@ dialog h2 { margin: 0 0 12px; font-size: 18px; }
   .head { flex-direction: column; gap: 2px; }
   .hint { display: none; }
   .sort { margin-left: 0; }
+  /* Little screen space on phones: let the header scroll away with the page. */
+  .top { position: static; }
 }
