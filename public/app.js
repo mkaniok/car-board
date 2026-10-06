@@ -6,7 +6,9 @@ const urlInput = $("#url");
 
 let cars = [];
 let filter = "all";
+let sort = "custom"; // "custom" = your drag-and-drop order, which is never changed by sorting
 let busy = false;
+let sortable;
 
 const fmtInt = (n) => (n == null ? "" : Number(n).toLocaleString("cs-CZ"));
 
@@ -52,10 +54,28 @@ function visible(c) {
   return filter === "all" || (filter === "done" ? c.contacted : !c.contacted);
 }
 
+// Returns the cars to show, in display order, each with its rank in your own order.
+function displayList() {
+  const list = cars.map((c, i) => ({ c, rank: i + 1 })).filter(({ c }) => visible(c));
+  if (sort === "custom") return list;
+  const [field, dir] = sort.split("-");
+  const sign = dir === "asc" ? 1 : -1;
+  // Cars missing the value go last; ties keep your own order.
+  return list.sort((a, b) => {
+    const x = a.c[field], y = b.c[field];
+    if (x == null || y == null) return (x == null) - (y == null) || a.rank - b.rank;
+    return (x - y) * sign || a.rank - b.rank;
+  });
+}
+
 function render() {
   board.textContent = "";
-  cars.forEach((c, i) => {
-    if (!visible(c)) return;
+  const custom = sort === "custom";
+  board.classList.toggle("sorted", !custom);
+  $("#hint").textContent = custom ? "Drag ☰ to reorder by preference" : "Switch to My order to drag";
+  sortable?.option("disabled", !custom);
+  displayList().forEach(({ c, rank }) => {
+    const i = rank - 1;
     const el = tpl.content.firstElementChild.cloneNode(true);
     el.dataset.id = c.id;
     el.classList.toggle("is-contacted", c.contacted);
@@ -211,7 +231,7 @@ async function persistOrder() {
   }
 }
 
-new Sortable(board, {
+sortable = new Sortable(board, {
   handle: ".handle",
   animation: 150,
   ghostClass: "ghost",
@@ -220,6 +240,7 @@ new Sortable(board, {
 });
 
 $("#add-form").addEventListener("submit", (e) => { e.preventDefault(); add(urlInput.value); });
+$("#sort").addEventListener("change", (e) => { sort = e.target.value; render(); });
 urlInput.addEventListener("paste", () => setTimeout(() => add(urlInput.value), 0));
 document.querySelectorAll(".filters button").forEach((b) => b.addEventListener("click", () => setFilter(b.dataset.filter)));
 // Pick up changes made on other devices.

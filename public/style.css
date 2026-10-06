@@ -63,6 +63,9 @@ h1 { margin: 0 0 8px; font-size: 20px; }
 .filters button { padding: 4px 10px; font-size: 13px; }
 .filters button.on { background: var(--text); color: var(--bg); border-color: var(--text); }
 .hint { color: var(--muted); font-size: 13px; }
+.sort { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); margin-left: auto; }
+.sort select { font-size: 13px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); }
+.board.sorted .handle { visibility: hidden; }
 
 .board { max-width: 1100px; margin: 0 auto; padding: 12px 16px 60px; display: flex; flex-direction: column; gap: 10px; }
 .empty { text-align: center; color: var(--muted); margin-top: 40px; }
@@ -127,4 +130,5 @@ dialog h2 { margin: 0 0 12px; font-size: 18px; }
   .actions { flex-direction: row; flex: 1; justify-content: flex-end; }
   .head { flex-direction: column; gap: 2px; }
   .hint { display: none; }
+  .sort { margin-left: 0; }
 }

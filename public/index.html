@@ -21,7 +21,18 @@
         <button data-filter="todo">Not contacted <span id="n-todo"></span></button>
         <button data-filter="done">Contacted <span id="n-done"></span></button>
       </div>
-      <span class="hint">Drag ☰ to reorder by preference</span>
+      <label class="sort">Sort
+        <select id="sort">
+          <option value="custom">My order</option>
+          <option value="price-asc">Price: lowest first</option>
+          <option value="price-desc">Price: highest first</option>
+          <option value="mileage-asc">Km: lowest first</option>
+          <option value="mileage-desc">Km: highest first</option>
+          <option value="year-desc">Year: newest first</option>
+          <option value="year-asc">Year: oldest first</option>
+        </select>
+      </label>
+      <span class="hint" id="hint">Drag ☰ to reorder by preference</span>
     </div>
   </header>
 

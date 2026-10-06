@@ -5,7 +5,8 @@ A shared board for used-car listings. Paste a listing URL (mostly sauto.cz), and
 - checks whether that car is already on the board (sauto links match on the listing id, so different slugs, `m.` hosts or tracking parameters still count as the same car) and highlights the existing card instead of adding a copy;
 - reads the listing and shows the key facts: photo, title, price, year, mileage, fuel, transmission, power, body, location and seller;
 - lets you tick **Contacted** per car, keep a short note, and filter by contacted / not contacted;
-- lets you drag cars (☰ handle, works on touch too) into your order of preference, which is saved for everyone.
+- lets you drag cars (☰ handle, works on touch too) into your order of preference, which is saved for everyone;
+- lets you temporarily sort by price, km or year; "My order" is the default and sorting never changes it.
 
 There is no login: anyone with the link can view and edit.
 
