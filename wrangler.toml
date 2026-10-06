@@ -7,9 +7,8 @@ directory = "./public"
 binding = "ASSETS"
 run_worker_first = ["/api/*"]
 
-# Create the database once with `npx wrangler d1 create car-board`
-# and paste the database_id it prints below.
+# Created with `npx wrangler d1 create car-board`.
 [[d1_databases]]
 binding = "DB"
 database_name = "car-board"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "d8c4c15e-9cf2-40e5-ae09-a67d8ca9964a"

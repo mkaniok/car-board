@@ -23,7 +23,7 @@ npx wrangler login                 # opens the browser to sign in to Cloudflare
 npx wrangler d1 create car-board   # prints a database_id
 ```
 
-Paste the printed `database_id` into `wrangler.toml` (replacing `REPLACE_WITH_YOUR_D1_DATABASE_ID`), then:
+Paste the printed `database_id` into `wrangler.toml` (keep `binding = "DB"`), then:
 
 ```sh
 npx wrangler deploy
