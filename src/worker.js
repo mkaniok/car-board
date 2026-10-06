@@ -154,7 +154,33 @@ async function reorder(env, body) {
   return json({ ok: true });
 }
 
+// sauto.cz photos live on *.sdn.cz, which refuses requests that don't come
+// from sauto itself, so the board loads them through this proxy.
+async function proxyImage(request) {
+  let target;
+  try {
+    target = new URL(new URL(request.url).searchParams.get("u"));
+  } catch {
+    return new Response("Bad image URL", { status: 400 });
+  }
+  if (target.protocol !== "https:" || !/(^|\.)sdn\.cz$/.test(target.hostname)) {
+    return new Response("Host not allowed", { status: 403 });
+  }
+  const res = await fetch(target, {
+    headers: { ...BROWSER_HEADERS, Accept: "image/avif,image/webp,image/*,*/*;q=0.8", Referer: "https://www.sauto.cz/" },
+    cf: { cacheEverything: true, cacheTtl: 86400 },
+  });
+  const type = res.headers.get("Content-Type") || "";
+  if (!res.ok || !type.startsWith("image/")) {
+    return new Response(`Image host answered ${res.status}`, { status: 502 });
+  }
+  return new Response(res.body, {
+    headers: { "Content-Type": type, "Cache-Control": "public, max-age=86400" },
+  });
+}
+
 async function handleApi(request, env, path) {
+  if (path === "/api/img" && request.method === "GET") return proxyImage(request);
   const method = request.method;
   const body = method === "GET" || method === "DELETE" ? {} : await request.json().catch(() => ({}));
   const idMatch = path.match(/^\/api\/cars\/(\d+)(\/refresh)?$/);

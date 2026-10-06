@@ -108,3 +108,20 @@ test("fetchListing uses the sauto API and falls back to the page", async (t) => 
   const failed = await fetchListing(normalizeUrl("https://www.sauto.cz/osobni/detail/skoda/octavia/201234567"));
   assert.match(failed.error, /403/);
 });
+
+test("image proxy only fetches sdn.cz and sends a sauto referer", async (t) => {
+  const { default: worker } = await import("../src/worker.js");
+  let sent;
+  t.mock.method(globalThis, "fetch", async (url, init) => {
+    sent = { url: String(url), referer: init.headers.Referer };
+    return new Response("img", { status: 200, headers: { "Content-Type": "image/jpeg" } });
+  });
+  const call = (u) => worker.fetch(new Request(`https://board.test/api/img?u=${encodeURIComponent(u)}`), {});
+  const ok = await call("https://d19-a.sdn.cz/d_19/c_img_x/y.jpeg?fl=res,1024,768,1|jpg,80");
+  assert.equal(ok.status, 200);
+  assert.equal(ok.headers.get("Content-Type"), "image/jpeg");
+  assert.equal(sent.referer, "https://www.sauto.cz/");
+  assert.equal((await call("https://evil.example.com/x.jpg")).status, 403);
+  assert.equal((await call("https://sdn.cz.evil.com/x.jpg")).status, 403);
+  assert.equal((await call("not a url")).status, 400);
+});

@@ -39,6 +39,17 @@ function specs(c) {
   return out;
 }
 
+// sauto (sdn.cz) photos only load through our proxy; try with and without the resize hint.
+function photoSources(url) {
+  if (!url) return [];
+  let host;
+  try { host = new URL(url).hostname; } catch { return [url]; }
+  if (!/(^|\.)sdn\.cz$/.test(host)) return [url];
+  const proxied = (u) => `/api/img?u=${encodeURIComponent(u)}`;
+  const bare = url.split("?")[0];
+  return [...new Set([proxied(url), proxied(`${bare}?fl=res,1024,768,1|jpg,80`), proxied(bare), url])];
+}
+
 function visible(c) {
   return filter === "all" || (filter === "done" ? c.contacted : !c.contacted);
 }
@@ -56,12 +67,9 @@ function render() {
     $(".title", el).href = c.url;
     $(".photo", el).href = c.url;
     const img = $(".photo img", el);
-    // sdn.cz (sauto) may reject a resize hint; fall back to the original image, then to no photo.
-    img.onerror = () => {
-      if (img.src.includes("?")) img.src = img.src.split("?")[0];
-      else img.removeAttribute("src");
-    };
-    img.src = c.image || "";
+    const sources = photoSources(c.image);
+    img.onerror = () => (sources.length ? (img.src = sources.shift()) : img.removeAttribute("src"));
+    img.src = sources.shift() || "";
     $(".price", el).textContent = c.price ? `${fmtInt(c.price)} Kč` : "";
     const ul = $(".specs", el);
     for (const s of specs(c)) ul.append(Object.assign(document.createElement("li"), { textContent: s }));
