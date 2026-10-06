@@ -171,6 +171,11 @@ async function proxyImage(request) {
     cf: { cacheEverything: true, cacheTtl: 86400 },
   });
   const type = res.headers.get("Content-Type") || "";
+  if (new URL(request.url).searchParams.has("debug")) {
+    // Diagnostics: show what the image host answered instead of the image.
+    const body = type.startsWith("image/") ? `<${type} image>` : (await res.text()).slice(0, 500);
+    return json({ status: res.status, type, headers: Object.fromEntries(res.headers), body });
+  }
   if (!res.ok || !type.startsWith("image/")) {
     return new Response(`Image host answered ${res.status}`, { status: 502 });
   }
@@ -200,6 +205,15 @@ async function handleApi(request, env, path) {
     }
   }
   if (path === "/api/order" && method === "PUT") return reorder(env, body);
+  if (path === "/api/raw" && method === "GET") {
+    // Diagnostics: the raw sauto API answer for a listing, to tune the parser.
+    const norm = normalizeUrl(new URL(request.url).searchParams.get("url"));
+    if (!norm.sautoId) return json({ error: "Not a sauto.cz listing URL" }, 400);
+    const res = await fetch(`https://www.sauto.cz/api/v1/items/${norm.sautoId}`, {
+      headers: { ...BROWSER_HEADERS, Accept: "application/json" },
+    });
+    return new Response(await res.text(), { status: res.status, headers: { "Content-Type": "application/json; charset=utf-8" } });
+  }
   if (idMatch) {
     const id = Number(idMatch[1]);
     if (idMatch[2] && method === "POST") return refreshCar(env, id);
