@@ -77,8 +77,9 @@ function displayList() {
 function render() {
   board.textContent = "";
   const custom = sort === "custom";
+  const onBoardCount = shown().length;
   board.classList.toggle("sorted", !custom);
-  $("#hint").textContent = custom ? "Drag ☰ to reorder by preference" : "Switch to My order to drag";
+  $("#hint").textContent = custom ? "Drag ☰ or use ▲▼ to reorder" : "Switch to My order to reorder";
   sortable?.option("disabled", !custom);
   displayList().forEach(({ c, rank }) => {
     const el = tpl.content.firstElementChild.cloneNode(true);
@@ -109,6 +110,15 @@ function render() {
     notes.addEventListener("change", () => save(c, { notes: notes.value }));
     $(".edit", el).addEventListener("click", () => openEdit(c));
     $(".refresh", el).addEventListener("click", () => refresh(c, el));
+    const up = $(".move.up", el), down = $(".move.down", el);
+    if (custom && !c.hidden) {
+      up.disabled = rank === 1;
+      down.disabled = rank === onBoardCount;
+      up.addEventListener("click", () => moveBy(c, -1));
+      down.addEventListener("click", () => moveBy(c, 1));
+    } else {
+      up.disabled = down.disabled = true;
+    }
     const hideBtn = $(".hide", el);
     hideBtn.textContent = c.hidden ? "Unhide" : "Hide";
     hideBtn.addEventListener("click", () => setHidden(c, !c.hidden));
@@ -247,6 +257,23 @@ async function persistOrder() {
   let k = 0;
   cars = cars.map((c) => (visible(c) ? byId.get(visibleIds[k++]) : c));
   render();
+  await saveOrder();
+}
+
+// Move a car one place up or down among the cars on the board (hidden ones are skipped).
+async function moveBy(car, dir) {
+  const onBoard = shown();
+  const at = onBoard.indexOf(car);
+  const other = onBoard[at + dir];
+  if (!other) return;
+  const i = cars.indexOf(car), j = cars.indexOf(other);
+  [cars[i], cars[j]] = [cars[j], cars[i]];
+  render();
+  flash(car.id);
+  await saveOrder();
+}
+
+async function saveOrder() {
   try {
     await api("/api/order", { method: "PUT", body: { ids: cars.map((c) => c.id) } });
   } catch (e) {
