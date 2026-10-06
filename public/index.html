@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Car Board</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Car Board</h1>
+    <form id="add-form" class="add" autocomplete="off">
+      <input id="url" type="url" inputmode="url" placeholder="Paste a listing URL (sauto.cz, …)" required>
+      <button type="submit" id="add-btn">Add</button>
+    </form>
+    <p id="msg" class="msg" role="status" aria-live="polite"></p>
+    <div class="toolbar">
+      <div class="filters" role="tablist">
+        <button data-filter="all" class="on">All <span id="n-all"></span></button>
+        <button data-filter="todo">Not contacted <span id="n-todo"></span></button>
+        <button data-filter="done">Contacted <span id="n-done"></span></button>
+      </div>
+      <span class="hint">Drag ☰ to reorder by preference</span>
+    </div>
+  </header>
+
+  <main id="board" class="board"></main>
+  <p id="empty" class="empty" hidden>No cars yet. Paste a sauto.cz link above to start.</p>
+
+  <template id="card-tpl">
+    <article class="card">
+      <div class="rank"><span class="handle" title="Drag to reorder">☰</span><span class="num"></span></div>
+      <a class="photo" target="_blank" rel="noopener"><img alt="" loading="lazy"></a>
+      <div class="body">
+        <div class="head">
+          <a class="title" target="_blank" rel="noopener"></a>
+          <div class="price"></div>
+        </div>
+        <ul class="specs"></ul>
+        <p class="warn" hidden></p>
+        <textarea class="notes" rows="1" placeholder="Notes…"></textarea>
+      </div>
+      <div class="side">
+        <label class="contacted"><input type="checkbox"><span>Contacted</span></label>
+        <div class="actions">
+          <button class="edit" title="Edit details">Edit</button>
+          <button class="refresh" title="Re-read the listing">Refresh</button>
+          <button class="delete" title="Remove from board">Remove</button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <dialog id="edit-dlg">
+    <form method="dialog" id="edit-form">
+      <h2>Edit car</h2>
+      <div class="grid">
+        <label class="wide">Title <input name="title"></label>
+        <label>Price (Kč) <input name="price" inputmode="numeric"></label>
+        <label>Year <input name="year" inputmode="numeric"></label>
+        <label>Mileage (km) <input name="mileage" inputmode="numeric"></label>
+        <label>Power (kW) <input name="power_kw" inputmode="numeric"></label>
+        <label>Fuel <input name="fuel"></label>
+        <label>Transmission <input name="transmission"></label>
+        <label>Body <input name="body"></label>
+        <label>Location <input name="location"></label>
+        <label class="wide">Seller <input name="seller"></label>
+        <label class="wide">Photo URL <input name="image" type="url"></label>
+      </div>
+      <div class="dlg-actions">
+        <button value="cancel" formnovalidate>Cancel</button>
+        <button value="save" class="primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="vendor/Sortable.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
