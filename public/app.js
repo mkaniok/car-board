@@ -125,7 +125,7 @@ async function add(url) {
       if (!visible(res.car)) { setFilter("all"); }
       flash(res.car.id);
     } else {
-      cars.unshift(res.car);
+      cars.push(res.car);
       if (filter === "done") setFilter("all"); else render();
       say(res.car.parse_error ? "Added, but some details couldn't be read. Use Edit to fill them in." : `Added: ${res.car.title}`, !!res.car.parse_error);
       flash(res.car.id);
